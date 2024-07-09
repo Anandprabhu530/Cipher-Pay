@@ -4,6 +4,7 @@ const router = express.Router();
 const { User } = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { authMiddleware } = require("../middleware");
 
 const Registeruser = z.object({
   username: z.string().email(),
@@ -16,6 +17,11 @@ const login_user = z.object({
   password: z.string(),
 });
 
+const update_user = z.object({
+  password: z.string(),
+  fullname: z.string(),
+});
+//Register New user
 router.post("/new-user", async (req, res) => {
   const parsed_data = Registeruser.safeParse(req.body);
   if (parsed_data.success) {
@@ -55,7 +61,8 @@ router.post("/new-user", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+//Login user
+router.post("/login", authMiddleware, async (req, res) => {
   const parsed_data = login_user.safeParse(req.body);
   if (parsed_data) {
     const userdata = await User.findOne({ username: req.body.username });
@@ -71,7 +78,7 @@ router.post("/login", async (req, res) => {
           const userId = userdata._id;
           const token = jwt.sign({ userId }, process.env.JWT_SECRET);
           return res.status(200).json({
-            message: "User created successfully",
+            message: "Login Successfull",
             token: token,
           });
         } else {
@@ -85,4 +92,5 @@ router.post("/login", async (req, res) => {
     return res.status(411).json({ message: "Incorrect inputs" });
   }
 });
+
 module.exports = router;
