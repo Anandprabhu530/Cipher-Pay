@@ -93,4 +93,27 @@ router.post("/login", authMiddleware, async (req, res) => {
   }
 });
 
+//Update user
+router.put("/", authMiddleware, async (req, res) => {
+  const { success } = update_user.safeParse(req.body);
+  if (success) {
+    const user = req.userId;
+    const updater = await User.updateOne(
+      { _id: user },
+      { fullname: req.body.fullname }
+    );
+    if (updater.modifiedCount > 0) {
+      return res.status(200).json({ Message: "Update Success" });
+    } else {
+      return res
+        .status(500)
+        .json({ Message: "Internal Error! Please try again later" });
+    }
+  } else {
+    return res
+      .status(411)
+      .json({ message: "Error while updating information/Check Inputs" });
+  }
+});
+
 module.exports = router;
