@@ -1,26 +1,31 @@
 const express = require("express");
 const z = require("zod");
-const router = express.Router();
-const { User } = require("../db");
+const { User, Account } = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { authMiddleware } = require("../middleware");
 
+const router = express.Router();
+
+//New User zod schema
 const Registeruser = z.object({
   username: z.string().email(),
   password: z.string(),
   fullname: z.string(),
 });
 
+//Login User zod schema
 const login_user = z.object({
   username: z.string().email(),
   password: z.string(),
 });
 
+//Update User zod schema
 const update_user = z.object({
   password: z.string(),
   fullname: z.string(),
 });
+
 //Register New user
 router.post("/new-user", async (req, res) => {
   const parsed_data = Registeruser.safeParse(req.body);
@@ -46,10 +51,15 @@ router.post("/new-user", async (req, res) => {
 
         if (inserted_data) {
           const userId = inserted_data._id;
+          const updatebalance = await Account.create({
+            userId: inserted_data._id,
+            balance: Math.round(1 + Math.random() * 10000),
+          });
           const token = jwt.sign({ userId }, process.env.JWT_SECRET);
           return res.status(200).json({
             message: "User created successfully",
             token: token,
+            balance: updatebalance.balance,
           });
         }
       }
