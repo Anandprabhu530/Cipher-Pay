@@ -116,4 +116,21 @@ router.put("/", authMiddleware, async (req, res) => {
   }
 });
 
+//Request for usernames
+router.get("/bulk", async (req, res) => {
+  if (req.query.filter) {
+    const all_user = await User.find({
+      fullname: { $regex: req.query.filter + ".*" },
+    });
+
+    return res.status(200).json({
+      users: all_user.map((data) => ({
+        fullname: data.fullname,
+        id: data._id,
+      })),
+    });
+  } else {
+    return res.status(411).json({ Messgae: "Please provide a filter" });
+  }
+});
 module.exports = router;
