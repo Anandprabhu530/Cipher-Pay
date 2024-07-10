@@ -2,6 +2,7 @@ const z = require("zod");
 const express = require("express");
 const { Account, User } = require("../db");
 const { authMiddleware } = require("../middleware");
+const { default: mongoose } = require("mongoose");
 
 const router = express.Router();
 
@@ -32,32 +33,35 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       .status(411)
       .json({ Message: "No sufficient objects to process" });
   }
-  const check_balance = await Account.findOne({ userId: userId });
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const receiver = await User.findOne({
+    username: req.body.transferto,
+  }).session(session);
+  if (!receiver) {
+    await session.abortTransaction();
+    return res.status(400).json({ Message: "Invalid Account" });
+  }
+  const check_balance = await Account.findOne({ userId: userId }).session(
+    session
+  );
   if (check_balance.balance < req.body.amount) {
+    await session.abortTransaction();
     return res.status(400).json({ Message: "Insufficient balance" });
   } else {
-    const updatebalance = await Account.updateOne(
+    const update_receiver = await Account.findOne({
+      userId: receiver._id,
+    }).session(session);
+    await Account.updateOne(
       { userId: userId },
       { balance: check_balance.balance - req.body.amount }
-    );
-    if (updatebalance) {
-      const receiver = await User.findOne({ username: req.body.transferto });
-      if (!receiver._id) {
-        return res.status(400).json({ Message: "Invalid Account" });
-      }
-      const update_receiver = await Account.findOne({ userId: receiver._id });
-      const update_receiver_balance = await Account.updateOne(
-        { userId: receiver._id },
-        { balance: update_receiver.balance + req.body.amount }
-      );
-      if (update_receiver_balance) {
-        return res.status(200).json({ Message: "Transfer successful" });
-      }
-    } else {
-      return res
-        .status(500)
-        .json({ Message: "Internal Error! Please try later." });
-    }
+    ).session(session);
+    await Account.updateOne(
+      { userId: receiver._id },
+      { balance: update_receiver.balance + req.body.amount }
+    ).session(session);
+    await session.commitTransaction();
+    return res.status(200).json({ Message: "Transfer successful" });
   }
 });
 
