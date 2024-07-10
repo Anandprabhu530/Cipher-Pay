@@ -11,7 +11,6 @@ const authMiddleware = (req, res, next) => {
       process.env.JWT_SECRET
     );
     req.userId = verfication.userId;
-    console.log(verfication.userId);
     next();
   } catch (error) {
     console.log(error);

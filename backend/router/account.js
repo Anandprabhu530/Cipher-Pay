@@ -1,19 +1,18 @@
 const express = require("express");
 const { User, Account } = require("../db");
+const { authMiddleware } = require("../middleware");
 
 const router = express.Router();
 
-router.get("/balance", async (req, res) => {
-  const username = req.body.username;
-
-  const user_id = await User.findOne({ username: username });
-  if (user_id) {
-    const balance = await Account.findOne({ userId: user_id.id });
+router.get("/balance", authMiddleware, async (req, res) => {
+  const balance = await Account.findOne({ userId: req.userId });
+  if (balance) {
     return res.status(200).json({ balance: balance.balance });
+  } else {
+    return res
+      .status(411)
+      .json({ message: "Invalid user! Please login or register" });
   }
-  return res
-    .status(411)
-    .json({ message: "Invalid user! Please login or register" });
 });
 
 module.exports = router;
