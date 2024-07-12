@@ -76,28 +76,34 @@ router.post("/login", authMiddleware, async (req, res) => {
   const parsed_data = login_user.safeParse(req.body);
   if (parsed_data) {
     const userdata = await User.findOne({ username: req.body.username });
-    bcrypt.compare(
-      req.body.password,
-      userdata.password,
-      function (err, result) {
-        if (err) {
-          console.log(err);
-          return res.status(411).json({ message: "Error while logging in" });
+    if (userdata) {
+      bcrypt.compare(
+        req.body.password,
+        userdata.password,
+        function (err, result) {
+          if (err) {
+            console.log(err);
+            return res.status(411).json({ message: "Error while logging in" });
+          }
+          if (result) {
+            const userId = userdata._id;
+            const token = jwt.sign({ userId }, process.env.JWT_SECRET);
+            return res.status(200).json({
+              message: "Login Successfull",
+              token: token,
+            });
+          } else {
+            return res
+              .status(403)
+              .json({ message: "Invalid password! Login correct password" });
+          }
         }
-        if (result) {
-          const userId = userdata._id;
-          const token = jwt.sign({ userId }, process.env.JWT_SECRET);
-          return res.status(200).json({
-            message: "Login Successfull",
-            token: token,
-          });
-        } else {
-          return res
-            .status(403)
-            .json({ message: "Invalid password! Login correct password" });
-        }
-      }
-    );
+      );
+    } else {
+      return res
+        .status(403)
+        .json({ message: "Invalid password! Login correct password" });
+    }
   } else {
     return res.status(411).json({ message: "Incorrect inputs" });
   }

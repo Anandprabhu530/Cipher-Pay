@@ -18,9 +18,10 @@ const Signin = () => {
       body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
+        authorization: localStorage.getItem("authorization"),
       },
     });
-    if (res.ok) {
+    if (res.status === 200) {
       navigate("/dashboard");
     }
   };
