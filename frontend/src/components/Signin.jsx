@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Signin = () => {
@@ -12,7 +12,7 @@ const Signin = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(data);
+
     const res = await fetch("http://localhost:3000/api/v1/user/login", {
       method: "POST",
       body: JSON.stringify(data),
@@ -56,7 +56,7 @@ const Signin = () => {
           </button>
         </form>
         <div className="w-full flex justify-center pt-4 font-semibold">
-          Don't have an account? &nbsp;
+          Don&apos;t have an account? &nbsp;
           <Link to="/signup" className="underline">
             Sign up
           </Link>

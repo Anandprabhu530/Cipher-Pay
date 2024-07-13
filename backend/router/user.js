@@ -82,7 +82,6 @@ router.post("/login", authMiddleware, async (req, res) => {
         userdata.password,
         function (err, result) {
           if (err) {
-            console.log(err);
             return res.status(411).json({ message: "Error while logging in" });
           }
           if (result) {

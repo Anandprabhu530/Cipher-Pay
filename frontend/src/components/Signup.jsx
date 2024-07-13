@@ -12,7 +12,7 @@ const Signup = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(data);
+
     const res = await fetch("http://localhost:3000/api/v1/user/new-user", {
       method: "POST",
       body: JSON.stringify(data),

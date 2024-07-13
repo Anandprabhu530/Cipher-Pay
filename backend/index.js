@@ -8,6 +8,4 @@ app.use(express.json());
 
 app.use("/api/v1", router);
 
-app.listen(3000, (req, res) => {
-  console.log("Listening on port 3000");
-});
+app.listen(3000);

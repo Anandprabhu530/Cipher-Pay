@@ -13,7 +13,6 @@ const authMiddleware = (req, res, next) => {
     req.userId = verfication.userId;
     next();
   } catch (error) {
-    console.log(error);
     return res.json({ Message: "Invalid auth token" });
   }
 };
