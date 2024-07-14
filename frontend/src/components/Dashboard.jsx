@@ -30,7 +30,7 @@ const Dashboard = () => {
       setBalance(res);
     };
     balance_getter();
-  }, [filter]);
+  }, [filter, navigate]);
 
   return (
     <div className="w-full h-screen border-2 border-red-500">

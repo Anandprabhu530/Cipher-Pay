@@ -40,12 +40,14 @@ const Signin = () => {
             onChange={handleChange}
             name="username"
             placeholder="johndoe@example.com"
+            type="email"
             className="border p-2 border-slate-300 rounded-md bg-transparent outline-none w-full"
           />
           <div className="pt-6 font-semibold">Password</div>
           <input
             onChange={handleChange}
             name="password"
+            type="password"
             className="border p-2 border-slate-300 rounded-md bg-transparent outline-none w-full"
           />
           <button
